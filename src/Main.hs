@@ -1,6 +1,8 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Main (main) where
 
-import Control.Monad (foldM)
+import Control.Monad (foldM, MonadFail)
 
 -- step :: Maybe Int -> Char -> Maybe Int
 -- step acc char =
@@ -13,6 +15,9 @@ import Control.Monad (foldM)
 --                _ -> Nothing
 --        )
 --        acc
+
+instance MonadFail (Either String) where
+  fail = Left
 
 step :: Int -> Char -> Maybe Int
 step acc char =
@@ -28,16 +33,15 @@ stepEither acc char =
         ')' -> if acc - 1 < 0 then Left "Unbalanced parens" else Right $ acc - 1
         _ -> Left "Invalid Char" 
 
-validateBrackets :: Monad m => String -> (Int -> Char -> m Int) -> m Int
+validateBrackets :: MonadFail m => String -> (Int -> Char -> m Int) -> m String 
 validateBrackets str  step =  do
   final <- foldM step 0 str
-  if final == 0 then final
-  else if final > 0 then Left "Unbalanced parens: too many opening"
-  else final
+  if final == 0 then return "Success"
+  else fail "Unbalanced parens"
 
 main :: IO ()
 main = do
     putStrLn "hello"
-    putStrLn $ show $ validateBrackets "(())" step
-    putStrLn $ show $ validateBrackets ")" stepEither 
+    putStrLn $ show $ validateBrackets "(())" stepEither
+    putStrLn $ show $ validateBrackets "()" step 
     putStrLn $ show $ validateBrackets "(()" stepEither 
