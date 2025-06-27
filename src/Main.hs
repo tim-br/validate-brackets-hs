@@ -34,3 +34,4 @@ main = do
     putStrLn $ show $ validateBrackets "(())" stepEither
     putStrLn $ show $ validateBrackets "()" stepMaybe
     putStrLn $ show $ validateBrackets "(()" stepEither
+    putStrLn $ show $ validateBrackets "(" stepMaybe
